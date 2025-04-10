@@ -69,11 +69,14 @@ namespace OnlineShopConsole
             public List<Product> Basket; // корзина
             public List<Order> Orders;
             private User currentUser;
+            private string adminName;
 
 
-            public Store(User user)
+
+            public Store(User user, string adminName)
             {
                 currentUser = user;
+                this.adminName = adminName;
                 Products = new List<Product> 
                 {
                     new Product("Хлеб", 50),
@@ -143,21 +146,36 @@ namespace OnlineShopConsole
             }
             public void AddProductToCatalog(string name, decimal price)
             {
-                Products.Add(new Product(name, price));
-                Console.WriteLine($"Продукт {name} успешно добавлен в каталог.");
+                if (currentUser.Name == adminName)
+                {
+                    Products.Add(new Product(name, price));
+                    Console.WriteLine($"Продукт {name} успешно добавлен в каталог.");
+                }
+                else
+                {
+                    Console.WriteLine("Только у Администратора есть правад на это действия");
+                }
             }
 
             public void RemoveProduct(int productNum)
             {
-                if (productNum > 0 && productNum <= Products.Count)
+                if (currentUser.Name == adminName)
                 {
-                    Products.RemoveAt(productNum - 1);
-                    Console.WriteLine($"Продукт {productNum} успешно удален из каталога.");
+                    if (productNum > 0 && productNum <= Products.Count)
+                    {
+                        Products.RemoveAt(productNum - 1);
+                        Console.WriteLine($"Продукт {productNum} успешно удален из каталога.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Некорректный номер продукта.");
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("Некорректный номер продукта.");
+                    Console.WriteLine("Только у Администратора есть правад на это действия");
                 }
+                
             }
         }
         static void Main(string[] args)
@@ -166,7 +184,9 @@ namespace OnlineShopConsole
             Console.WriteLine("Введите ваше имя:");
             var userName = Console.ReadLine();
             User currentUser = new User(userName);
-            Store onlineStore = new Store(currentUser);
+
+            string adminName = "admin".ToLower();
+            Store onlineStore = new Store(currentUser, adminName);
 
 
             bool continueProgram = true;
@@ -267,8 +287,6 @@ namespace OnlineShopConsole
             }
         }
 
-
-        // Возможности администратора: редактирование цены продуктов!
 
         static bool IsYes(string answer)
         {
